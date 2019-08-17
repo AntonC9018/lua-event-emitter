@@ -39,7 +39,7 @@ e:untilTrue('ev3', trueSometimes, final)
 print('Feeding 0')
 e:emit('ev3', 0)
 print('Feeding 1')
-e:emit('ev3', 1) -- only here it should print
+e:emit('ev3', 1) -- only here it should print 'Cool? Yes, sir!'
 print('Feeding 1 again')
 e:emit('ev3', 1)
 print('Feeding 2')
