@@ -2,11 +2,11 @@
 -- I'm sick of fixing other people's bugs
 local Emitter = {}
 
+local pfx_once = '_once_'
+
 setmetatable(Emitter, {
     __call = function (_) return Emitter:new() end
 })
-
-local pfx_once = '_once_'
 
 function Emitter:new()
     local obj = {}
@@ -25,10 +25,14 @@ function Emitter:construct()
     -- each of those events is going to be a string
     -- and the value will be the array of listeners
     -- anything else?
+    self.events_to_remove = {}
 end
 
 
 function Emitter:on(event, listener)
+
+    printf('Binding event %s', event)
+    print(ins(listener))
 
     if self.events[event] then
         table.insert(self.events[event], listener)
@@ -37,10 +41,13 @@ function Emitter:on(event, listener)
         self.events[event] = { listener }
     end
 
+
 end
 
 
 function Emitter:emit(event, ...)
+
+    self:cleanUp()
 
     if self.events[event] then
         for i = 1, #self.events[event] do
@@ -57,20 +64,34 @@ function Emitter:emit(event, ...)
         self.events[once_event] = nil
     end
 
+    self:cleanUp()
+
+end
+
+function Emitter:cleanUp()
+
+    for key, arr in pairs(self.events_to_remove) do
+        for i = 1, #arr do
+            for j = 1, #self.events[key] do
+                if arr[i] == self.events[key][j] then
+                    table.remove(self.events[key], j)
+                    break
+                end
+            end
+        end
+    end
+
+    self.events_to_remove = {}
+
 end
 
 
 function Emitter:removeListener(event, listener)
 
-    if self.events[event] then
-
-        for i = 1, # self.events[event] do
-            if self.events[event][i] == listener then
-                table.remove(self.events[event], i)
-                return true
-            end
-        end
-
+    if self.events_to_remove[event] then
+        table.insert(self.events_to_remove[event], listener)
+    else
+        self.events_to_remove[event] = { listener }
     end
 
     return false
