@@ -31,9 +31,6 @@ end
 
 function Emitter:on(event, listener)
 
-    printf('Binding event %s', event)
-    print(ins(listener))
-
     if self.events[event] then
         table.insert(self.events[event], listener)
 
